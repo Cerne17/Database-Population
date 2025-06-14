@@ -9,11 +9,14 @@ fake = Faker('pt-BR')
 async def get_countries():
   america_countries = requests.get('https://restcountries.com/v3.1/region/America').json()
   countries = {} # portuguese_name: original_name
+  countries_non_official = {}
   for country in america_countries:
     country_name = country['name']['official']
+    common_name = country['name']['common']
     portuguese_name = await translate(country_name)
     countries[portuguese_name] = country_name
-  return countries
+    countries_non_official[portuguese_name] = common_name
+  return countries, countries_non_official
 
 async def insert_countries(conn):
   america_countries = requests.get('https://restcountries.com/v3.1/region/America').json()
@@ -35,10 +38,33 @@ async def insert_countries(conn):
     country_data.clear()
 
 async def insert_states(conn):
-  country_data: dict = await get_countries()
+  country_data, common_data = await get_countries()
   db_countries = await get_all_data(conn, 'Pais')
+  url = "https://countriesnow.space/api/v0.1/countries/states"
+  payload = {}
+  headers = {}
+  response =  requests.request("GET", url, headers=headers, data=payload).json()['data']
+  states_data = {}
+  for state in response:
+    states_data[state['name']] = state['states']
+  print(states_data.keys())
+
+
   for country in db_countries:
-    
+    portuguese_name = country['Nm_Pais'].strip()
+    original_name = country_data[portuguese_name].strip()
+    common_name = common_data[portuguese_name].strip()
+
+    if common_name in states_data:
+      states = states_data[common_name]
+      for state in states:
+          state_info = {}
+          state_info['Cd_Pais'] = country['Cd_Pais']
+          state_info['Nm_Estado'] = state['name']
+          state_info['Sg_Estado'] = state['state_code']
+          state_info['Cd_Area'] = state['state_code']
+          await insert_data(conn, 'Estado', state_info)
+
 
 async def insert_people(conn):
   
@@ -50,7 +76,8 @@ async def insert_people(conn):
 
 async def main():
   conn = await connect()
-  await insert_states(conn)
+  # await insert_countries(conn)
+  # await insert_states(conn)
 
 if __name__ == "__main__":
   asyncio.run(main())
