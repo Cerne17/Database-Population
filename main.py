@@ -73,9 +73,7 @@ async def insert_cities(conn):
     print(state)
     state_code = state['Sg_Estado'].strip()
     url = f"https://brasilapi.com.br/api/ibge/municipios/v1/{state_code}?providers=dados-abertos-br,gov,wikipedia"
-    print(url)
     response = requests.get(url).json()
-    print(response)
     for city in response:
       city_info = {}
       city_info['Nm_Cidade'] = city['nome'].strip()
@@ -83,6 +81,17 @@ async def insert_cities(conn):
       city_info['Cd_IBGE_Cidade'] = city['codigo_ibge'].strip()
       await insert_data(conn, 'Cidade', city_info)
 
+async def insert_neighborhoods(conn):
+  for city in await get_brazilian_cities(conn):
+    url = 'https://api.brasilaberto.com/v1/districts-by-ibge-code/{ibgeCode}'
+    response = requests.get(url.format(ibgeCode=city['Cd_IBGE_Cidade'])).json()
+    print(response)
+    for neighborhood in response:
+      print(neighborhood)
+      neighborhood_info = {}
+      neighborhood_info['Nm_Bairro'] = neighborhood['name']
+      neighborhood_info['Cd_Cidade'] = city['Cd_Cidade']
+      await insert_data(conn, 'Bairro', neighborhood_info)
 
 async def insert_people(conn):
   
@@ -96,7 +105,8 @@ async def main():
   conn = await connect()
   # await insert_countries(conn)
   # await insert_states(conn)
-  await insert_cities(conn)
+  # await insert_cities(conn)
+  await insert_neighborhoods(conn)
 
 if __name__ == "__main__":
   asyncio.run(main())
