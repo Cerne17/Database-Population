@@ -82,23 +82,50 @@ async def insert_cities(conn):
       await insert_data(conn, 'Cidade', city_info)
 
 async def insert_neighborhoods(conn):
-  for city in await get_brazilian_cities(conn):
-    url = 'https://api.brasilaberto.com/v1/districts-by-ibge-code/{ibgeCode}'
-    response = requests.get(url.format(ibgeCode=city['Cd_IBGE_Cidade'])).json()
-    print(response)
-    for neighborhood in response:
-      print(neighborhood)
+  response = None
+  with open('neighborhoods.json', 'r') as file:
+    response = json.load(file)
+  cities = await get_brazilian_cities(conn)
+  city_codes = {}
+  for city in cities:
+    city_codes[city['Nm_Cidade'].strip()] = city['Cd_Cidade']
+  # for neighborhood in response:
+  for city, neighborhoods in response.items():
+    for neighborhood in neighborhoods:
       neighborhood_info = {}
-      neighborhood_info['Nm_Bairro'] = neighborhood['name']
-      neighborhood_info['Cd_Cidade'] = city['Cd_Cidade']
+      neighborhood_info['Nm_Bairro'] = neighborhood
+      neighborhood_info['Cd_Cidade'] = city_codes[city.upper()]
       await insert_data(conn, 'Bairro', neighborhood_info)
 
 async def insert_people(conn):
-  
-  for _ in range(50):
-    # print(fake.name())
-    # print(fake.address())
-    pass
+  for _ in range(200):
+    person_info = {}
+    person_info['Ds_Email'] = fake.email()
+    await insert_data(conn, 'Pessoa', person_info)
+
+async def insert_physical_persons(conn):
+  people_db = await get_all_data(conn, 'Pessoa')
+  for i in range(150):
+    person_info = {}
+    nome_completo = fake.name()
+    person_info['Nm_PrimeiroNome'] = nome_completo.split(' ')[0]
+    person_info['Nm_Sobrenome'] = ' '.join(nome_completo.split(' ')[1:])
+    person_info['Cd_CPF'] = generate_cpf()
+    person_info['Cd_Pessoa'] = people_db[i]['Cd_Pessoa']
+    print(person_info)
+    await insert_data(conn, 'PessoaFisica', person_info)
+
+async def insert_juridical_persons(conn):
+  people_db = await get_all_data(conn, 'Pessoa')
+  for i in range(150, 200):
+    person_info = {}
+    person_info['Cd_Pessoa'] = people_db[i]['Cd_Pessoa']
+    person_info['Cd_cnpj'] = generate_cnpj()
+    person_info['Nm_RazaoSocial'] = fake.company()
+    await insert_data(conn, 'PessoaJuridica', person_info)
+
+    
+
 
 
 async def main():
@@ -106,7 +133,12 @@ async def main():
   # await insert_countries(conn)
   # await insert_states(conn)
   # await insert_cities(conn)
-  await insert_neighborhoods(conn)
+  # await insert_neighborhoods(conn)
+  # await insert_people(conn)
+  # await insert_physical_persons(conn)
+  # await insert_juridical_persons(conn)
+  conn.close()
+
 
 if __name__ == "__main__":
   asyncio.run(main())
