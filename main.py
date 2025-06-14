@@ -3,9 +3,12 @@ from db import *
 import requests
 import asyncio
 from faker import Faker
+from functools import cache
+import json
 
 fake = Faker('pt-BR')
 
+@cache
 async def get_countries():
   america_countries = requests.get('https://restcountries.com/v3.1/region/America').json()
   countries = {} # portuguese_name: original_name
@@ -65,6 +68,21 @@ async def insert_states(conn):
           state_info['Cd_Area'] = state['state_code']
           await insert_data(conn, 'Estado', state_info)
 
+async def insert_cities(conn):
+  for state in await get_brazilian_states(conn):
+    print(state)
+    state_code = state['Sg_Estado'].strip()
+    url = f"https://brasilapi.com.br/api/ibge/municipios/v1/{state_code}?providers=dados-abertos-br,gov,wikipedia"
+    print(url)
+    response = requests.get(url).json()
+    print(response)
+    for city in response:
+      city_info = {}
+      city_info['Nm_Cidade'] = city['nome'].strip()
+      city_info['Cd_Estado'] = state['Cd_Estado']
+      city_info['Cd_IBGE_Cidade'] = city['codigo_ibge'].strip()
+      await insert_data(conn, 'Cidade', city_info)
+
 
 async def insert_people(conn):
   
@@ -78,6 +96,7 @@ async def main():
   conn = await connect()
   # await insert_countries(conn)
   # await insert_states(conn)
+  await insert_cities(conn)
 
 if __name__ == "__main__":
   asyncio.run(main())
