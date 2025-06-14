@@ -140,13 +140,83 @@ async def insert_workers(conn):
     await insert_data(conn, 'Funcionario', worker_info)
 
 async def insert_vaccine_centers(conn):
-  pass
+  companies_db = await get_all_data(conn, 'PessoaJuridica')
+  for i in range(0, 40):
+    vaccine_center_info = {}
+    vaccine_center_info['Nm_CentroVacinacao'] = companies_db[i]['Nm_RazaoSocial']
+    vaccine_center_info['Cd_PessoaJuridica'] = companies_db[i]['Cd_PessoaJuridica']
+    await insert_data(conn, 'CentroVacinacao', vaccine_center_info)
 
 async def insert_factories(conn):
+  companies_db = await get_all_data(conn, 'PessoaJuridica')
+  for i in range(40, 50):
+    factory_info = {}
+    factory_info['Nm_Fabrica'] = companies_db[i]['Nm_RazaoSocial']
+    factory_info['Cd_PessoaJuridica'] = companies_db[i]['Cd_PessoaJuridica']
+    await insert_data(conn, 'Fabrica', factory_info)
+
+async def insert_vacines(conn):
   pass
 
+async def insert_logradouro(conn, description):
+  logradouro_info = {}
+  logradouro_info['Ds_Logradouro'] = description
+  await insert_data(conn, 'Logradouro', logradouro_info)
+
 async def insert_addresses(conn):
-  pass
+  total_neighborhood_not_found = 0
+  neighborhood_not_found = []
+
+  response = None
+  logradouros = await get_all_data(conn, 'Logradouro')
+  logradouros = {logradouro['Ds_Logradouro'].strip(): logradouro['Cd_Logradouro'] for logradouro in logradouros}
+  neighborhoods = await get_all_data(conn, 'Bairro')
+  neighborhoods = {neighborhood['Nm_Bairro'].strip(): neighborhood['Cd_Bairro'] for neighborhood in neighborhoods}
+  logradouros_types = await get_all_data(conn, 'TipoLogradouro')
+  logradouros_types = {logradouro_type['Ds_TipoLogradouro'].strip(): logradouro_type['Cd_TipoLogradouro'] for logradouro_type in logradouros_types}
+  complement_type = await get_all_data(conn, 'TipoComplemento')
+  complement_type = {complement['Ds_TipoComplemento'].strip(): complement['Cd_TipoComplemento'] for complement in complement_type}
+
+  with open('addresses.json', 'r') as file:
+    response = json.load(file)['enderecos']
+  
+  for address in response:
+
+    address['TipoComplemento'] = address['Complemento'].split()[0] if address['Complemento'] else ''
+    address['Complemento'] = ' '.join(address['Complemento'].split()[1:]) if address['Complemento'] else ''
+
+    if address['Logradouro'] not in logradouros.keys():
+      await insert_data(conn, 'Logradouro', {'Ds_Logradouro': address['Logradouro']})
+      logradouros = await get_all_data(conn, 'Logradouro')
+      logradouros = {logradouro['Ds_Logradouro'].strip(): logradouro['Cd_Logradouro'] for logradouro in logradouros}
+
+    if address['Bairro'] not in neighborhoods.keys():
+      print('Warning! Neighborhood not found, register it manually.')
+      total_neighborhood_not_found += 1
+      neighborhood_not_found.append(address['Bairro'])
+      continue
+    if address['TipoLogradouro'] not in logradouros_types.keys():
+      await insert_data(conn, 'TipoLogradouro', {'Ds_TipoLogradouro': address['TipoLogradouro']})
+      logradouros_types = await get_all_data(conn, 'TipoLogradouro')
+      logradouros_types = {logradouro_type['Ds_TipoLogradouro'].strip(): logradouro_type['Cd_TipoLogradouro'] for logradouro_type in logradouros_types}
+
+    if address['TipoComplemento'] not in complement_type.keys():
+      await insert_data(conn, 'TipoComplemento', {'Ds_TipoComplemento': address['TipoComplemento']})
+      complement_type = await get_all_data(conn, 'TipoComplemento')
+      complement_type = {complement['Ds_TipoComplemento'].strip(): complement['Cd_TipoComplemento'] for complement in complement_type}
+
+    address_info = {}
+    address_info['Cd_Logradouro'] = logradouros[address['Logradouro']]
+    address_info['Cd_Bairro'] = neighborhoods[address['Bairro']]
+    address_info['Cd_TipoLogradouro'] = logradouros_types[address['TipoLogradouro']]
+    address_info['Cd_TipoComplemento'] = complement_type[address['TipoComplemento']]
+    address_info['Ds_Complemento'] = address['Complemento']
+    address_info['Nu_Local'] = address['Numero']
+    address_info['Cd_Cep'] = address['CEP']
+    await insert_data(conn, 'Endereco', address_info)
+  print(f'Total neighborhoods not found: {total_neighborhood_not_found}')
+  print(f'Neighborhoods not found: {neighborhood_not_found}')
+
 
 async def insert_addresses_list(conn):
   pass
@@ -162,6 +232,9 @@ async def main():
   # await insert_juridical_persons(conn)
   # await insert_patients(conn)
   # await insert_workers(conn)
+  # await insert_vaccine_centers(conn)
+  # await insert_factories(conn)
+  await insert_addresses(conn)
   conn.close()
 
 
