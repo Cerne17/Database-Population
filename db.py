@@ -92,3 +92,22 @@ async def get_all_data(conn: pyodbc.Connection, table_name: str) -> list:
   except pyodbc.Error as er:
     print(f"Error retrieving data from {table_name}: {er}")
     return []
+  
+async def get_brazilian_states(conn: pyodbc.Connection) -> list:
+  query = """
+  SELECT Estado.Cd_Estado, Estado.Nm_Estado, Estado.Sg_Estado
+  FROM Pais
+  JOIN Estado
+  On Pais.Cd_Pais = Estado.Cd_Pais
+  WHERE Pais.Sg_Pais = 'BR';
+  """
+  try:
+    def _db_operation():
+      with conn.cursor() as cursor:
+        cursor.execute(query)
+        columns = [column[0] for column in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+    return await asyncio.to_thread(_db_operation)
+  except pyodbc.Error as er:
+    print(f"Error retrieving data from Brazil: {er}")
+    return []
