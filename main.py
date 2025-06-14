@@ -124,9 +124,20 @@ async def insert_juridical_persons(conn):
     person_info['Nm_RazaoSocial'] = fake.company()
     await insert_data(conn, 'PessoaJuridica', person_info)
 
-    
+async def insert_patients(conn):
+  people_db = await get_all_data(conn, 'PessoaFisica')
+  print(people_db)
+  for person in people_db:
+    patient_info = {}
+    patient_info['Cd_PessoaFisica'] = person['Cd_PessoaFisica']
+    await insert_data(conn, 'Paciente', patient_info)
 
-
+async def insert_workers(conn):
+  people_db = await get_all_data(conn, 'PessoaFisica')
+  for i in range(100, 123):
+    worker_info = {}
+    worker_info['Cd_PessoaFisica'] = people_db[i]['Cd_PessoaFisica']
+    await insert_data(conn, 'Funcionario', worker_info)
 
 async def main():
   conn = await connect()
@@ -137,6 +148,8 @@ async def main():
   # await insert_people(conn)
   # await insert_physical_persons(conn)
   # await insert_juridical_persons(conn)
+  await insert_patients(conn)
+  await insert_workers(conn)
   conn.close()
 
 
