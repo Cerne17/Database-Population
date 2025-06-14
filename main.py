@@ -139,6 +139,18 @@ async def insert_workers(conn):
     worker_info['Cd_PessoaFisica'] = people_db[i]['Cd_PessoaFisica']
     await insert_data(conn, 'Funcionario', worker_info)
 
+async def insert_vaccine_centers(conn):
+  pass
+
+async def insert_factories(conn):
+  pass
+
+async def insert_addresses(conn):
+  pass
+
+async def insert_addresses_list(conn):
+  pass
+
 async def main():
   conn = await connect()
   # await insert_countries(conn)
@@ -148,8 +160,8 @@ async def main():
   # await insert_people(conn)
   # await insert_physical_persons(conn)
   # await insert_juridical_persons(conn)
-  await insert_patients(conn)
-  await insert_workers(conn)
+  # await insert_patients(conn)
+  # await insert_workers(conn)
   conn.close()
 
 
