@@ -111,3 +111,21 @@ async def get_brazilian_states(conn: pyodbc.Connection) -> list:
   except pyodbc.Error as er:
     print(f"Error retrieving data from Brazil: {er}")
     return []
+
+async def get_brazilian_cities(conn: pyodbc.Connection) -> list:
+  query = """
+  SELECT Cidade.Cd_Cidade, Cidade.Nm_Cidade, Cidade.Cd_IBGE_Cidade
+  FROM Estado
+  JOIN Cidade
+  ON Estado.Cd_Estado = Cidade.Cd_Estado;
+  """
+  try:
+    def _db_operation():
+      with conn.cursor() as cursor:
+        cursor.execute(query)
+        columns = [column[0] for column in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+    return await asyncio.to_thread(_db_operation)
+  except pyodbc.Error as er:
+    print(f"Error retrieving data from States: {er}")
+    return []
