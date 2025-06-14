@@ -1,0 +1,324 @@
+{
+  "enderecos": [
+    {
+      "Bairro": "Botafogo",
+      "Numero": "350",
+      "Complemento": "Apto 604",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Voluntários da Pátria",
+      "CEP": "22270-010"
+    },
+    {
+      "Bairro": "Lapa",
+      "Numero": "1020",
+      "Complemento": "Bloco A",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Ernesto de Morais",
+      "CEP": "05075-100"
+    },
+    {
+      "Bairro": "Vila Madalena",
+      "Numero": "540",
+      "Complemento": "Casa 3",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Harmonia",
+      "CEP": "05435-001"
+    },
+    {
+      "Bairro": "Taquara",
+      "Numero": "88",
+      "Complemento": "",
+      "TipoLogradouro": "Travessa",
+      "Logradouro": "São Francisco",
+      "CEP": "22715-200"
+    },
+    {
+      "Bairro": "Jardins",
+      "Numero": "900",
+      "Complemento": "Cobertura",
+      "TipoLogradouro": "Alameda",
+      "Logradouro": "Lorena",
+      "CEP": "01424-001"
+    },
+    {
+      "Bairro": "Santa Rosa",
+      "Numero": "77",
+      "Complemento": "Casa 1",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "General Osório",
+      "CEP": "27705-000"
+    },
+    {
+      "Bairro": "Tijuca",
+      "Numero": "800",
+      "Complemento": "Sala 302",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Maracanã",
+      "CEP": "20511-000"
+    },
+    {
+      "Bairro": "Moema",
+      "Numero": "1001",
+      "Complemento": "Bloco C",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Ibirapuera",
+      "CEP": "04029-200"
+    },
+    {
+      "Bairro": "Vila Industrial",
+      "Numero": "120",
+      "Complemento": "Galpão 5",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "José Paulino",
+      "CEP": "13035-000"
+    },
+    {
+      "Bairro": "Centro",
+      "Numero": "65",
+      "Complemento": "",
+      "TipoLogradouro": "Praça",
+      "Logradouro": "Barão de Vassouras",
+      "CEP": "27706-001"
+    },
+    {
+      "Bairro": "Leblon",
+      "Numero": "345",
+      "Complemento": "Apto 1202",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Dias Ferreira",
+      "CEP": "22431-050"
+    },
+    {
+      "Bairro": "Perdizes",
+      "Numero": "225",
+      "Complemento": "",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Cardoso de Almeida",
+      "CEP": "05013-000"
+    },
+    {
+      "Bairro": "Barão Geraldo",
+      "Numero": "15",
+      "Complemento": "Casa 6",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Vital Brasil",
+      "CEP": "13084-530"
+    },
+    {
+      "Bairro": "Santa Amélia",
+      "Numero": "110",
+      "Complemento": "",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Sebastião Manuel Figueira",
+      "CEP": "27707-002"
+    },
+    {
+      "Bairro": "Ipanema",
+      "Numero": "500",
+      "Complemento": "Apto 201",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Visconde de Pirajá",
+      "CEP": "22410-003"
+    },
+    {
+      "Bairro": "Jardins",
+      "Numero": "430",
+      "Complemento": "Bloco B",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Brigadeiro Luís Antônio",
+      "CEP": "01317-000"
+    },
+    {
+      "Bairro": "Cambuí",
+      "Numero": "200",
+      "Complemento": "Sala 1001",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Guilherme da Silva",
+      "CEP": "13025-002"
+    },
+    {
+      "Bairro": "Centro",
+      "Numero": "99",
+      "Complemento": "",
+      "TipoLogradouro": "Travessa",
+      "Logradouro": "Coronel Manoel Leite",
+      "CEP": "27708-003"
+    },
+    {
+      "Bairro": "Flamengo",
+      "Numero": "60",
+      "Complemento": "Apto 202",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Marquês de Abrantes",
+      "CEP": "22230-061"
+    },
+    {
+      "Bairro": "Mooca",
+      "Numero": "780",
+      "Complemento": "Galpão",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Paes de Barros",
+      "CEP": "03149-000"
+    },
+    {
+      "Bairro": "Botafogo",
+      "Numero": "350",
+      "Complemento": "Apto 604",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Voluntários da Pátria",
+      "CEP": "22270-010"
+    },
+    {
+      "Bairro": "Lapa",
+      "Numero": "1020",
+      "Complemento": "Bloco A",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Ernesto de Morais",
+      "CEP": "05075-100"
+    },
+    {
+      "Bairro": "Vila Madalena",
+      "Numero": "540",
+      "Complemento": "Casa 3",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Harmonia",
+      "CEP": "05435-001"
+    },
+    {
+      "Bairro": "Taquara",
+      "Numero": "88",
+      "Complemento": "",
+      "TipoLogradouro": "Travessa",
+      "Logradouro": "São Francisco",
+      "CEP": "22715-200"
+    },
+    {
+      "Bairro": "Jardins",
+      "Numero": "900",
+      "Complemento": "Cobertura",
+      "TipoLogradouro": "Alameda",
+      "Logradouro": "Lorena",
+      "CEP": "01424-001"
+    },
+    {
+      "Bairro": "Santa Rosa",
+      "Numero": "77",
+      "Complemento": "Casa 1",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "General Osório",
+      "CEP": "27705-000"
+    },
+    {
+      "Bairro": "Tijuca",
+      "Numero": "800",
+      "Complemento": "Sala 302",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Maracanã",
+      "CEP": "20511-000"
+    },
+    {
+      "Bairro": "Moema",
+      "Numero": "1001",
+      "Complemento": "Bloco C",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Ibirapuera",
+      "CEP": "04029-200"
+    },
+    {
+      "Bairro": "Vila Industrial",
+      "Numero": "120",
+      "Complemento": "Galpão 5",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "José Paulino",
+      "CEP": "13035-000"
+    },
+    {
+      "Bairro": "Centro",
+      "Numero": "65",
+      "Complemento": "",
+      "TipoLogradouro": "Praça",
+      "Logradouro": "Barão de Vassouras",
+      "CEP": "27706-001"
+    },
+    {
+      "Bairro": "Leblon",
+      "Numero": "345",
+      "Complemento": "Apto 1202",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Dias Ferreira",
+      "CEP": "22431-050"
+    },
+    {
+      "Bairro": "Perdizes",
+      "Numero": "225",
+      "Complemento": "",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Cardoso de Almeida",
+      "CEP": "05013-000"
+    },
+    {
+      "Bairro": "Barão Geraldo",
+      "Numero": "15",
+      "Complemento": "Casa 6",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Vital Brasil",
+      "CEP": "13084-530"
+    },
+    {
+      "Bairro": "Santa Amélia",
+      "Numero": "110",
+      "Complemento": "",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Sebastião Manuel Figueira",
+      "CEP": "27707-002"
+    },
+    {
+      "Bairro": "Ipanema",
+      "Numero": "500",
+      "Complemento": "Apto 201",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Visconde de Pirajá",
+      "CEP": "22410-003"
+    },
+    {
+      "Bairro": "Jardins",
+      "Numero": "430",
+      "Complemento": "Bloco B",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Brigadeiro Luís Antônio",
+      "CEP": "01317-000"
+    },
+    {
+      "Bairro": "Cambuí",
+      "Numero": "200",
+      "Complemento": "Sala 1001",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Guilherme da Silva",
+      "CEP": "13025-002"
+    },
+    {
+      "Bairro": "Centro",
+      "Numero": "99",
+      "Complemento": "",
+      "TipoLogradouro": "Travessa",
+      "Logradouro": "Coronel Manoel Leite",
+      "CEP": "27708-003"
+    },
+    {
+      "Bairro": "Flamengo",
+      "Numero": "60",
+      "Complemento": "Apto 202",
+      "TipoLogradouro": "Rua",
+      "Logradouro": "Marquês de Abrantes",
+      "CEP": "22230-061"
+    },
+    {
+      "Bairro": "Mooca",
+      "Numero": "780",
+      "Complemento": "Galpão",
+      "TipoLogradouro": "Avenida",
+      "Logradouro": "Paes de Barros",
+      "CEP": "03149-000"
+    }
+  ]
+}
