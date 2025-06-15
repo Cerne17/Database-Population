@@ -1,0 +1,39 @@
+{
+  "TipoVacina": [
+    {
+      "Nm_TipoVacina": "Pfizer Comirnaty",
+      "Pz_Validade": 270,
+      "Pz_ValidadeAposAbrir": 31
+    },
+    {
+      "Nm_TipoVacina": "AstraZeneca (Fiocruz)",
+      "Pz_Validade": 180,
+      "Pz_ValidadeAposAbrir": 6
+    },
+    {
+      "Nm_TipoVacina": "CoronaVac (Butantan)",
+      "Pz_Validade": 365,
+      "Pz_ValidadeAposAbrir": 28
+    },
+    {
+      "Nm_TipoVacina": "Janssen (Johnson & Johnson)",
+      "Pz_Validade": 450,
+      "Pz_ValidadeAposAbrir": 6
+    },
+    {
+      "Nm_TipoVacina": "Moderna Spikevax",
+      "Pz_Validade": 270,
+      "Pz_ValidadeAposAbrir": 30
+    },
+    {
+      "Nm_TipoVacina": "Covaxin (Bharat Biotech)",
+      "Pz_Validade": 180,
+      "Pz_ValidadeAposAbrir": 28
+    },
+    {
+      "Nm_TipoVacina": "Sputnik V",
+      "Pz_Validade": 180,
+      "Pz_ValidadeAposAbrir": 6
+    }
+  ]
+}
