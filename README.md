@@ -28,7 +28,7 @@ This project is designed to populate a SQL Server database with comprehensive du
 - **`main.py`**: The main executable script that orchestrates the entire data generation and insertion process. It calls various functions to populate different tables in a specific order.
 - **`db.py`**: Handles all database connectivity and operations. It provides asynchronous functions for connecting to the SQL Server database, inserting data, and retrieving data.
 - **`functionalities.py`**: Contains helper functions for tasks like translating text (using `googletrans`), generating CPFs and CNPJs, and creating random datetime objects.
-- **`databasedll.sql`**: This SQL file contains the Data Definition Language (DDL) statements used to create the database schema (tables, relationships, constraints, etc.) for this project. It serves as a reference for the database structure that the Python scripts expect to interact with. **Note:** The Python scripts in this project are designed to *populate* an existing database; they do not execute this DDL file to create the schema. The schema must be created in your SQL Server instance beforehand, potentially by using the statements in this file.
+- **`databasedll.sql`**: This SQL file contains the Data Definition Language (DDL) statements used to create the database schema (tables, relationships, constraints, etc.) for this project. It serves as a reference for the database structure that the Python scripts expect to interact with. **Note:** The Python scripts in this project are designed to _populate_ an existing database; they do not execute this DDL file to create the schema. The schema must be created in your SQL Server instance beforehand, potentially by using the statements in this file.
 - **`requirements.txt`**: Lists all Python package dependencies required to run the project. This file can be used with `pip install -r requirements.txt` to easily set up the environment.
 
 ## Prerequisites
@@ -91,6 +91,12 @@ This project is designed to populate a SQL Server database with comprehensive du
     python main.py >> application_output.txt 2>&1
     ```
 
+    In my case, as I use a macbook, I need to specify the version of python that has all packages properly installed:
+
+    ```bash
+    python3.12 main.py >> application_output.txt 2>&1
+    ```
+
 ## Data Generation Flow
 
 The `main.py` script populates the database in a sequence designed to respect foreign key constraints. This generally involves:
@@ -138,7 +144,7 @@ Este projeto foi desenvolvido para popular um banco de dados SQL Server com dado
 - **`main.py`**: O script executável principal que orquestra todo o processo de geração e inserção de dados. Ele chama várias funções para popular diferentes tabelas em uma ordem específica.
 - **`db.py`**: Lida com toda a conectividade e operações de banco de dados. Fornece funções assíncronas para conectar ao banco de dados SQL Server, inserir dados e recuperar dados.
 - **`functionalities.py`**: Contém funções auxiliares para tarefas como traduzir texto (usando `googletrans`), gerar CPFs e CNPJs, e criar objetos datetime aleatórios.
-- **`databasedll.sql`**: Este arquivo SQL contém as instruções DDL (Data Definition Language - Linguagem de Definição de Dados) usadas para criar o esquema do banco de dados (tabelas, relacionamentos, restrições, etc.) para este projeto. Ele serve como referência para a estrutura do banco de dados com a qual os scripts Python esperam interagir. **Nota:** Os scripts Python neste projeto são projetados para *popular* um banco de dados existente; eles não executam este arquivo DDL para criar o esquema. O esquema deve ser criado em sua instância do SQL Server antecipadamente, potencialmente usando as instruções contidas neste arquivo.
+- **`databasedll.sql`**: Este arquivo SQL contém as instruções DDL (Data Definition Language - Linguagem de Definição de Dados) usadas para criar o esquema do banco de dados (tabelas, relacionamentos, restrições, etc.) para este projeto. Ele serve como referência para a estrutura do banco de dados com a qual os scripts Python esperam interagir. **Nota:** Os scripts Python neste projeto são projetados para _popular_ um banco de dados existente; eles não executam este arquivo DDL para criar o esquema. O esquema deve ser criado em sua instância do SQL Server antecipadamente, potencialmente usando as instruções contidas neste arquivo.
 - **`requirements.txt`**: Lista todas as dependências de pacotes Python necessárias para executar o projeto. Este arquivo pode ser usado com `pip install -r requirements.txt` para configurar facilmente o ambiente.
 
 ## Pré-requisitos
@@ -199,6 +205,12 @@ Este projeto foi desenvolvido para popular um banco de dados SQL Server com dado
 
     ```bash
     python main.py >> application_output.txt 2>&1
+    ```
+
+    No meu caso, como utilizo um macbook, eu preciso explicitar a versão do python que tenha todos pacotes devidamente instalados:
+
+    ```bash
+    python3.12 main.py >> application_output.txt 2>&1
     ```
 
 ## Fluxo de Geração de Dados
