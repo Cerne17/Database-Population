@@ -129,3 +129,23 @@ async def get_brazilian_cities(conn: pyodbc.Connection) -> list:
   except pyodbc.Error as er:
     print(f"Error retrieving data from States: {er}")
     return []
+  
+async def get_by_id(conn: pyodbc.Connection, table_name: str, id_value: int) -> dict | None:
+  """
+  Retrieves a single record from a table by its ID.
+  Assumes the ID column is named 'Cd_TableName'.
+  """
+  query = f"SELECT * FROM {table_name} WHERE Cd_{table_name} = ?;"
+  try:
+    def _db_operation():
+      with conn.cursor() as cursor:
+        cursor.execute(query, id_value)
+        row = cursor.fetchone()
+        if row:
+          columns = [column[0] for column in cursor.description]
+          return dict(zip(columns, row))
+      return None # Return None if no row is found
+    return await asyncio.to_thread(_db_operation)
+  except pyodbc.Error as er:
+    print(f"Error retrieving data from {table_name}: {er}")
+    return None
