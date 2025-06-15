@@ -280,12 +280,12 @@ async def insert_ships(conn):
   vaccine_types = {vaccine_type['Cd_TipoVacina']: vaccine_type['Pz_Validade'] for vaccine_type in vaccine_types}
   vaccine_types_id = list(vaccine_types.keys())
 
-  for i in range(400):
+  for _ in range(150):
     factory = choice(factories)
     vaccine_type = choice(vaccine_types_id)
     vaccine_center = choice(vaccine_centers)
     size = choice(ship_sizes)
-    manufactured_date = fake.date_time_between(start_date='-5y', end_date='-3y')
+    manufactured_date = fake.date_time_between(start_date='-1y')
     expiration_date = manufactured_date + timedelta(days=vaccine_types[vaccine_type])
 
     ship_info = {}
@@ -420,13 +420,13 @@ async def main():
   # await insert_addresses(conn)
   # await insert_addresses_list(conn)
   # await insert_vaccine_types(conn)
-  # await insert_ships(conn)
+  await insert_ships(conn)
   # await insert_shifts(conn)
   # await insert_ampoules(conn)
   # await insert_vaccines(conn)
 
   # Other scripts to ensure that all data necessary for the assignement are present
-  await generate_patient_with_all_vaccines(conn)
+  # await generate_patient_with_all_vaccines(conn)
   conn.close()
 
 
