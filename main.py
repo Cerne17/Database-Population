@@ -167,7 +167,6 @@ async def insert_addresses(conn):
   total_neighborhood_not_found = 0
   neighborhood_not_found = []
 
-  response = None
   logradouros = await get_all_data(conn, 'Logradouro')
   logradouros = {logradouro['Ds_Logradouro'].strip(): logradouro['Cd_Logradouro'] for logradouro in logradouros}
   neighborhoods = await get_all_data(conn, 'Bairro')
@@ -177,6 +176,7 @@ async def insert_addresses(conn):
   complement_type = await get_all_data(conn, 'TipoComplemento')
   complement_type = {complement['Ds_TipoComplemento'].strip(): complement['Cd_TipoComplemento'] for complement in complement_type}
 
+  response = None
   with open('addresses.json', 'r') as file:
     response = json.load(file)['enderecos']
   
@@ -217,9 +217,70 @@ async def insert_addresses(conn):
   print(f'Total neighborhoods not found: {total_neighborhood_not_found}')
   print(f'Neighborhoods not found: {neighborhood_not_found}')
 
-
 async def insert_addresses_list(conn):
-  pass
+  address_types = await get_all_data(conn, 'TipoEndereco')
+  address_types = {address_type['Ds_TipoEndereco'].strip(): address_type['Cd_TipoEndereco'] for address_type in address_types}
+
+  used_addresses = 0
+
+  addresses = await get_all_data(conn, 'Endereco')
+  addresses = [address['Cd_Endereco'] for address in addresses]
+
+  factories = await get_all_data(conn, 'Fabrica')
+  factories = [factory['Cd_PessoaJuridica'] for factory in factories]
+  print(factories)
+  factories_persons = [await get_by_id(conn, 'PessoaJuridica', factory_id) for factory_id in factories]
+  print(factories_persons)
+  factories_persons = [factory_person['Cd_Pessoa'] for factory_person in factories_persons]
+
+  for i in range(len(factories_persons)):
+    address_list_info = {}
+    address_list_info['Cd_Pessoa'] = factories_persons[i]
+    address_list_info['Cd_Endereco'] = addresses[i%2]
+    address_list_info['Cd_TipoEndereco'] = address_types['Matriz']
+    await insert_data(conn, 'ListaEndereco', address_list_info)
+    used_addresses = (i+used_addresses)%2
+    
+
+  vaccine_centers = await get_all_data(conn, 'CentroVacinacao')
+  vaccine_centers = [vaccine_center['Cd_PessoaJuridica'] for vaccine_center in vaccine_centers]
+  vaccine_centers_persons = [await get_by_id(conn, 'PessoaJuridica', vaccine_center_id) for vaccine_center_id in vaccine_centers]
+  vaccine_centers_persons = [vaccine_center_person['Cd_Pessoa'] for vaccine_center_person in vaccine_centers_persons]
+
+  for i in range(len(vaccine_centers_persons)):
+    address_list_info = {}
+    address_list_info['Cd_Pessoa'] = vaccine_centers_persons[i]
+    address_list_info['Cd_Endereco'] = addresses[(i+used_addresses)%4]
+    address_list_info['Cd_TipoEndereco'] = address_types['Filial']
+    await insert_data(conn, 'ListaEndereco', address_list_info)
+
+    used_addresses = (i+used_addresses)%4 # 15
+
+  patients = await get_all_data(conn, 'Paciente')
+  patients = [patient['Cd_PessoaFisica'] for patient in patients]
+  patients_persons = [await get_by_id(conn, 'PessoaFisica', patient_id) for patient_id in patients]
+  patients_persons = [patient_person['Cd_Pessoa'] for patient_person in patients_persons]
+
+  for i in range(len(patients_persons)):
+    address_list_info = {}
+    address_list_info['Cd_Pessoa'] = patients_persons[i]
+    address_list_info['Cd_Endereco'] = addresses[(used_addresses+i)%12]
+    address_list_info['Cd_TipoEndereco'] = address_types['Residencia']
+    await insert_data(conn, 'ListaEndereco', address_list_info)
+
+    used_addresses = (i+used_addresses)%15 # ~28
+
+  workers = await get_all_data(conn, 'Funcionario')
+  workers = [worker['Cd_PessoaFisica'] for worker in workers]
+  workers_persons = [await get_by_id(conn, 'PessoaFisica', worker_id) for worker_id in workers]
+  workers_persons = [worker_person['Cd_Pessoa'] for worker_person in workers_persons]
+
+  for i in range(len(workers_persons)):
+    address_list_info = {}
+    address_list_info['Cd_Pessoa'] = workers_persons[i]
+    address_list_info['Cd_Endereco'] = addresses[(used_addresses+i)%3]
+    address_list_info['Cd_TipoEndereco'] = address_types['Residencia']
+    await insert_data(conn, 'ListaEndereco', address_list_info)
 
 async def main():
   conn = await connect()
@@ -234,7 +295,8 @@ async def main():
   # await insert_workers(conn)
   # await insert_vaccine_centers(conn)
   # await insert_factories(conn)
-  await insert_addresses(conn)
+  # await insert_addresses(conn)
+  await insert_addresses_list(conn)
   conn.close()
 
 
