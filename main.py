@@ -282,6 +282,17 @@ async def insert_addresses_list(conn):
     address_list_info['Cd_TipoEndereco'] = address_types['Residencia']
     await insert_data(conn, 'ListaEndereco', address_list_info)
 
+async def insert_vaccine_types(conn):
+  vaccine_types = None
+  with open('vaccinetypes.json', 'r') as file:
+    vaccine_types = json.load(file)['TipoVacina']
+  for vaccine_type in vaccine_types:
+    vaccine_type_info = {}
+    vaccine_type_info['Nm_TipoVacina'] = vaccine_type['Nm_TipoVacina']
+    vaccine_type_info['Pz_Validade'] = vaccine_type['Pz_Validade']
+    vaccine_type_info['Pz_ValidadeAposAbrir'] = vaccine_type['Pz_ValidadeAposAbrir']
+    await insert_data(conn, 'TipoVacina', vaccine_type_info)
+
 async def main():
   conn = await connect()
   # await insert_countries(conn)
@@ -296,7 +307,8 @@ async def main():
   # await insert_vaccine_centers(conn)
   # await insert_factories(conn)
   # await insert_addresses(conn)
-  await insert_addresses_list(conn)
+  # await insert_addresses_list(conn)
+  await insert_vaccine_types(conn)
   conn.close()
 
 
