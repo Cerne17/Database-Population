@@ -263,23 +263,11 @@ async def insert_addresses_list(conn):
   for i in range(len(patients_persons)):
     address_list_info = {}
     address_list_info['Cd_Pessoa'] = patients_persons[i]
-    address_list_info['Cd_Endereco'] = addresses[(used_addresses+i)%12]
+    address_list_info['Cd_Endereco'] = addresses[(used_addresses+i)%5]
     address_list_info['Cd_TipoEndereco'] = address_types['Residencia']
     await insert_data(conn, 'ListaEndereco', address_list_info)
 
-    used_addresses = (i+used_addresses)%15 # ~28
-
-  workers = await get_all_data(conn, 'Funcionario')
-  workers = [worker['Cd_PessoaFisica'] for worker in workers]
-  workers_persons = [await get_by_id(conn, 'PessoaFisica', worker_id) for worker_id in workers]
-  workers_persons = [worker_person['Cd_Pessoa'] for worker_person in workers_persons]
-
-  for i in range(len(workers_persons)):
-    address_list_info = {}
-    address_list_info['Cd_Pessoa'] = workers_persons[i]
-    address_list_info['Cd_Endereco'] = addresses[(used_addresses+i)%3]
-    address_list_info['Cd_TipoEndereco'] = address_types['Residencia']
-    await insert_data(conn, 'ListaEndereco', address_list_info)
+    used_addresses = (i+used_addresses)%5 # ~28
 
 async def insert_vaccine_types(conn):
   vaccine_types = None
@@ -373,23 +361,23 @@ async def insert_vaccines(conn):
 
 async def main():
   conn = await connect()
-  # await insert_countries(conn)
-  # await insert_states(conn)
-  # await insert_cities(conn)
-  # await insert_neighborhoods(conn)
-  # await insert_people(conn)
-  # await insert_physical_persons(conn)
-  # await insert_juridical_persons(conn)
-  # await insert_patients(conn)
-  # await insert_workers(conn)
-  # await insert_vaccine_centers(conn)
-  # await insert_factories(conn)
-  # await insert_addresses(conn)
-  # await insert_addresses_list(conn)
-  # await insert_vaccine_types(conn)
-  # await insert_ships(conn)
-  # await insert_shifts(conn)
-  # await insert_ampoules(conn)
+  await insert_countries(conn)
+  await insert_states(conn)
+  await insert_cities(conn)
+  await insert_neighborhoods(conn)
+  await insert_people(conn)
+  await insert_physical_persons(conn)
+  await insert_juridical_persons(conn)
+  await insert_patients(conn)
+  await insert_workers(conn)
+  await insert_vaccine_centers(conn)
+  await insert_factories(conn)
+  await insert_addresses(conn)
+  await insert_addresses_list(conn)
+  await insert_vaccine_types(conn)
+  await insert_ships(conn)
+  await insert_shifts(conn)
+  await insert_ampoules(conn)
   await insert_vaccines(conn)
   conn.close()
 
