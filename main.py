@@ -5,6 +5,8 @@ import asyncio
 from faker import Faker
 from functools import cache
 import json
+from random import choice
+from datetime import datetime, timedelta
 
 fake = Faker('pt-BR')
 
@@ -293,6 +295,34 @@ async def insert_vaccine_types(conn):
     vaccine_type_info['Pz_ValidadeAposAbrir'] = vaccine_type['Pz_ValidadeAposAbrir']
     await insert_data(conn, 'TipoVacina', vaccine_type_info)
 
+async def insert_ships(conn):
+  ship_sizes = [30, 50, 100]
+  factories = await get_all_data(conn, 'Fabrica')
+  factories = [factory['Cd_Fabrica'] for factory in factories]
+  vaccine_centers = await get_all_data(conn, 'CentroVacinacao')
+  vaccine_centers = [vaccine_center['Cd_CentroVacinacao'] for vaccine_center in vaccine_centers]
+  vaccine_types = await get_all_data(conn, 'TipoVacina')
+  vaccine_types = {vaccine_type['Cd_TipoVacina']: vaccine_type['Pz_Validade'] for vaccine_type in vaccine_types}
+  vaccine_types_id = list(vaccine_types.keys())
+
+  for i in range(400):
+    factory = choice(factories)
+    vaccine_type = choice(vaccine_types_id)
+    vaccine_center = choice(vaccine_centers)
+    size = choice(ship_sizes)
+    manufactured_date = fake.date_time_between(start_date='-5y', end_date='-3y')
+    expiration_date = manufactured_date + timedelta(days=vaccine_types[vaccine_type])
+
+    ship_info = {}
+    ship_info['Cd_Fabrica'] = factory
+    ship_info['Cd_TipoVacina'] = vaccine_type
+    ship_info['Cd_CentroVacinacao'] = vaccine_center
+    ship_info['Dt_Fabricacao'] = manufactured_date
+    ship_info['Dt_Validade'] = expiration_date
+    ship_info['Nu_QuantidadeAmpolas'] = size
+    await insert_data(conn, 'Lote', ship_info)
+
+
 async def main():
   conn = await connect()
   # await insert_countries(conn)
@@ -308,7 +338,8 @@ async def main():
   # await insert_factories(conn)
   # await insert_addresses(conn)
   # await insert_addresses_list(conn)
-  await insert_vaccine_types(conn)
+  # await insert_vaccine_types(conn)
+  await insert_ships(conn)
   conn.close()
 
 
