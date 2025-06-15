@@ -403,6 +403,112 @@ async def generate_patient_with_all_vaccines(conn):
     vaccine_info['Dt_Vacinacao'] = fake.date_time_between(start_date=shift_start, end_date=shift_end)
     await insert_data(conn, 'Vacinacao', vaccine_info)
 
+async def generate_patient_with_all_factories(conn):
+  patient_id = 200 # Chosen manually
+  
+  # Fetch all necessary data once to minimize DB calls
+  all_shifts_raw = await get_all_data(conn, 'Plantao')
+  all_ampoules_raw = await get_all_data(conn, 'Ampola')
+  all_factories_raw = await get_all_data(conn, 'Fabrica')
+
+  # Prepare data for easier lookup
+  shifts = {
+      shift['Cd_Plantao']: {
+          'worker_id': shift['Cd_Funcionario'],
+          'center_id': shift['Cd_CentroVacinacao'],
+          'start_time': shift['Dt_Inicio'],
+          'end_time': shift['Dt_Termino']
+      } for shift in all_shifts_raw
+  }
+
+  ampoules = {
+      ampoule['Cd_Ampola']: {
+          'ship_id': ampoule['Cd_Lote'],
+          'open_date': ampoule['Dt_Abertura']
+      } for ampoule in all_ampoules_raw
+  }
+
+  # We'll need to fetch ship details individually as they are linked to ampoules
+  # and then to factories.
+
+  factories = [factory['Cd_Fabrica'] for factory in all_factories_raw]
+
+  for factory_id in factories:
+    print(f"Processing factory ID: {factory_id}")
+    ship_from_factory_id = None
+    vaccine_center_for_ship = None
+    
+    # Find a ship (Lote) that came from the current factory
+    # This requires iterating through ampoules to find their ships, then checking ship's factory
+    # This is inefficient if done repeatedly. A better approach would be to get all ships
+    # and map them to factories if possible, or accept the current lookup strategy.
+    # For this example, we'll find the first suitable ship.
+
+    found_ship_for_factory = False
+    target_ship_id = None
+    target_ampoule_id = None
+    target_ampoule_open_date = None
+
+    # Find an ampoule whose ship (Lote) is from the current factory
+    for amp_id, amp_data in ampoules.items():
+        ship_details = await get_by_id(conn, 'Lote', amp_data['ship_id'])
+        if ship_details and ship_details['Cd_Fabrica'] == factory_id:
+            target_ship_id = amp_data['ship_id']
+            vaccine_center_for_ship = ship_details['Cd_CentroVacinacao']
+            target_ampoule_id = amp_id
+            target_ampoule_open_date = amp_data['open_date']
+            found_ship_for_factory = True
+            print(f"  Found ship ID: {target_ship_id} from factory {factory_id} via ampoule {target_ampoule_id}")
+            break # Found a suitable ampoule/ship for this factory
+
+    if not found_ship_for_factory:
+      print(f"Warning! No ship/ampoule found originating from factory {factory_id}. Skipping this factory.")
+      continue
+
+    # Find a suitable shift for vaccination
+    found_shift = False
+    target_shift_id = None
+    target_worker_id = None
+    target_shift_start = None
+    target_shift_end = None
+
+    for shift_id, shift_data in shifts.items():
+      # Check if shift is at the correct vaccination center
+      # and if the shift starts after the ampoule was opened (or on the same day)
+      if shift_data['center_id'] == vaccine_center_for_ship and \
+         shift_data['start_time'] >= target_ampoule_open_date:
+        target_shift_id = shift_id
+        target_worker_id = shift_data['worker_id']
+        target_shift_start = shift_data['start_time']
+        target_shift_end = shift_data['end_time']
+        found_shift = True
+        print(f"  Found shift ID: {target_shift_id} at center {vaccine_center_for_ship}")
+        break
+
+    if not found_shift:
+      print(f"Warning! No suitable shift found for ampoule {target_ampoule_id} (from factory {factory_id}) at vaccine center {vaccine_center_for_ship}. Skipping this factory.")
+      continue
+
+    # All conditions met, prepare and insert vaccination record
+    vaccine_info = {}
+    vaccine_info['Cd_Paciente'] = patient_id
+    vaccine_info['Cd_Funcionario'] = target_worker_id
+    vaccine_info['Cd_Ampola'] = target_ampoule_id
+    # Ensure vaccination date is within the shift and after ampoule opening
+    # For simplicity, using a date within the shift. A more precise logic might be needed
+    # if fake.date_time_between needs to consider target_ampoule_open_date as well.
+    # Current fake.date_time_between might pick a date before ampoule was opened if shift started earlier.
+    
+    # Ensure vaccination date is after ampoule opening and within shift
+    possible_vaccination_start_date = max(target_shift_start, target_ampoule_open_date)
+    if possible_vaccination_start_date > target_shift_end:
+        print(f"Warning! Ampoule {target_ampoule_id} opened after shift {target_shift_id} ended. Skipping this factory.")
+        continue
+
+    vaccine_info['Dt_Vacinacao'] = fake.date_time_between(start_date=possible_vaccination_start_date, end_date=target_shift_end)
+    
+    await insert_data(conn, 'Vacinacao', vaccine_info)
+    print(f"  Successfully recorded vaccination for patient {patient_id} from factory {factory_id} using ampoule {target_ampoule_id}.")
 
 async def main():
   conn = await connect()
@@ -420,13 +526,14 @@ async def main():
   # await insert_addresses(conn)
   # await insert_addresses_list(conn)
   # await insert_vaccine_types(conn)
-  await insert_ships(conn)
+  # await insert_ships(conn)
   # await insert_shifts(conn)
   # await insert_ampoules(conn)
   # await insert_vaccines(conn)
 
   # Other scripts to ensure that all data necessary for the assignement are present
   # await generate_patient_with_all_vaccines(conn)
+  await generate_patient_with_all_factories(conn)
   conn.close()
 
 
