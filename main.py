@@ -359,26 +359,85 @@ async def insert_vaccines(conn):
     vaccine_info['Dt_Vacinacao'] = vaccine_date
     await insert_data(conn, 'Vacinacao', vaccine_info)
 
+async def generate_patient_with_all_vaccines(conn):
+  patient_id = 200 # Chosen manually
+  shifts = await get_all_data(conn, 'Plantao')
+  shifts = {shift['Cd_Plantao']: [shift['Cd_Funcionario'], shift['Cd_CentroVacinacao'], shift['Dt_Inicio'], shift['Dt_Termino']] for shift in shifts}
+  ampoules = await get_all_data(conn, 'Ampola')
+  ampoules = {ampoule['Cd_Ampola']: [ampoule['Cd_Lote'], ampoule['Dt_Abertura']] for ampoule in ampoules}
+  ships = [await get_by_id(conn, 'Lote', ampoules[ampoule_id][0]) for ampoule_id in ampoules.keys()]
+  ships = {ship['Cd_Lote']: [ship['Cd_TipoVacina'], ship['Cd_CentroVacinacao']] for ship in ships}
+  vaccine_types = await get_all_data(conn, 'TipoVacina')
+  vaccine_types = [vaccine_type['Cd_TipoVacina'] for vaccine_type in vaccine_types]
+  for type in vaccine_types:
+    ship_id = None
+    vaccine_center_id = None
+    for ship in ships.keys():
+      if ships[ship][0] == type:
+        ship_id = ship
+        vaccine_center_id = ships[ship][1]
+        break
+    if ship_id is None:
+      print(f'Warning! Vaccine Type {type} has no ship available. Add manually. Skipping...')
+      continue
+
+    ampoule_id = None
+    ampoule_open_date = None
+    for ampoule in ampoules.keys():
+      if ampoules[ampoule][0] == ship_id:
+        ampoule_id = ampoule
+        ampoule_open_date = ampoules[ampoule][1]
+        break
+    if ampoule_id is None:
+        print(f'Warning! Ship {ship_id} has no ampoules available. Add manually. Skipping...')
+        continue
+    
+    shift_id = None
+    worker_id = None
+    shift_start = None
+    shift_end = None
+    for shift in shifts.keys():
+      if shifts[shift][1] == vaccine_center_id and shifts[shift][2] > ampoule_open_date:
+        shift_id = shift
+        worker_id = shifts[shift][0]
+        shift_start = shifts[shift][2]
+        shift_end = shifts[shift][3]
+        break
+    if shift_id is None:
+      print(f'Warning! Vaccine center {vaccine_center_id} has no shifts available. Add manually. Skipping...')
+      continue
+
+    vaccine_info ={}
+    vaccine_info['Cd_Paciente'] = patient_id
+    vaccine_info['Cd_Funcionario'] = worker_id
+    vaccine_info['Cd_Ampola'] = ampoule_id
+    vaccine_info['Dt_Vacinacao'] = fake.date_time_between(start_date=shift_start, end_date=shift_end)
+    await insert_data(conn, 'Vacinacao', vaccine_info)
+
+
 async def main():
   conn = await connect()
-  await insert_countries(conn)
-  await insert_states(conn)
-  await insert_cities(conn)
-  await insert_neighborhoods(conn)
-  await insert_people(conn)
-  await insert_physical_persons(conn)
-  await insert_juridical_persons(conn)
-  await insert_patients(conn)
-  await insert_workers(conn)
-  await insert_vaccine_centers(conn)
-  await insert_factories(conn)
-  await insert_addresses(conn)
-  await insert_addresses_list(conn)
-  await insert_vaccine_types(conn)
-  await insert_ships(conn)
-  await insert_shifts(conn)
-  await insert_ampoules(conn)
-  await insert_vaccines(conn)
+  # await insert_countries(conn)
+  # await insert_states(conn)
+  # await insert_cities(conn)
+  # await insert_neighborhoods(conn)
+  # await insert_people(conn)
+  # await insert_physical_persons(conn)
+  # await insert_juridical_persons(conn)
+  # await insert_patients(conn)
+  # await insert_workers(conn)
+  # await insert_vaccine_centers(conn)
+  # await insert_factories(conn)
+  # await insert_addresses(conn)
+  # await insert_addresses_list(conn)
+  # await insert_vaccine_types(conn)
+  # await insert_ships(conn)
+  # await insert_shifts(conn)
+  # await insert_ampoules(conn)
+  # await insert_vaccines(conn)
+
+  # Other scripts to ensure that all data necessary for the assignement are present
+  await generate_patient_with_all_vaccines(conn)
   conn.close()
 
 
