@@ -62,7 +62,7 @@ def generate_random_datetime(
     random_seconds = random.randint(0, int(delta.total_seconds()))
     random_dt = datetime_inicial + timedelta(seconds=random_seconds)
 
-    # Formatação compatível com MS SQL Server: 'YYYY-MM-DD HH:MM:SS'
+    # MS SQL Format: 'YYYY-MM-DD HH:MM:SS'
     formatted_str = random_dt.strftime('%Y-%m-%d %H:%M:%S')
 
     return random_dt, formatted_str

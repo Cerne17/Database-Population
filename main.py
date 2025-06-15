@@ -30,11 +30,8 @@ async def insert_countries(conn):
   for country in america_countries:
     country_name = country['name']['official']
 
-    print(f"Original: {country_name}")
     portuguese_name = await translate(country_name)
-    print(f"Traduzido: {portuguese_name}")
     country_code = country['cca2']
-    print(country_code)
 
     country_data['Nm_Pais'] = portuguese_name
     country_data['Sg_Pais'] = country_code
@@ -52,8 +49,6 @@ async def insert_states(conn):
   states_data = {}
   for state in response:
     states_data[state['name']] = state['states']
-  print(states_data.keys())
-
 
   for country in db_countries:
     portuguese_name = country['Nm_Pais'].strip()
@@ -72,7 +67,6 @@ async def insert_states(conn):
 
 async def insert_cities(conn):
   for state in await get_brazilian_states(conn):
-    print(state)
     state_code = state['Sg_Estado'].strip()
     url = f"https://brasilapi.com.br/api/ibge/municipios/v1/{state_code}?providers=dados-abertos-br,gov,wikipedia"
     response = requests.get(url).json()
@@ -114,7 +108,6 @@ async def insert_physical_persons(conn):
     person_info['Nm_Sobrenome'] = ' '.join(nome_completo.split(' ')[1:])
     person_info['Cd_CPF'] = generate_cpf()
     person_info['Cd_Pessoa'] = people_db[i]['Cd_Pessoa']
-    print(person_info)
     await insert_data(conn, 'PessoaFisica', person_info)
 
 async def insert_juridical_persons(conn):
@@ -128,7 +121,6 @@ async def insert_juridical_persons(conn):
 
 async def insert_patients(conn):
   people_db = await get_all_data(conn, 'PessoaFisica')
-  print(people_db)
   for person in people_db:
     patient_info = {}
     patient_info['Cd_PessoaFisica'] = person['Cd_PessoaFisica']
@@ -213,8 +205,8 @@ async def insert_addresses(conn):
     address_info['Nu_Local'] = address['Numero']
     address_info['Cd_Cep'] = address['CEP']
     await insert_data(conn, 'Endereco', address_info)
-  print(f'Total neighborhoods not found: {total_neighborhood_not_found}')
-  print(f'Neighborhoods not found: {neighborhood_not_found}')
+  print(f'Warning! Total neighborhoods not found: {total_neighborhood_not_found}')
+  print(f'Warning! Neighborhoods not found: {neighborhood_not_found}')
 
 async def insert_addresses_list(conn):
   address_types = await get_all_data(conn, 'TipoEndereco')
@@ -227,9 +219,7 @@ async def insert_addresses_list(conn):
 
   factories = await get_all_data(conn, 'Fabrica')
   factories = [factory['Cd_PessoaJuridica'] for factory in factories]
-  print(factories)
   factories_persons = [await get_by_id(conn, 'PessoaJuridica', factory_id) for factory_id in factories]
-  print(factories_persons)
   factories_persons = [factory_person['Cd_Pessoa'] for factory_person in factories_persons]
 
   for i in range(len(factories_persons)):
@@ -331,7 +321,6 @@ async def insert_shifts(conn):
 async def insert_ampoules(conn):
   ships = await get_all_data(conn, 'Lote')
   ships = {ship['Cd_Lote']: [ship['Nu_QuantidadeAmpolas'], ship['Dt_Fabricacao'], ship['Dt_Validade']] for ship in ships}
-  print(ships)
 
   for ship in ships.keys():
     for _ in range(int(ships[ship][0])):
