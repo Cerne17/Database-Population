@@ -157,9 +157,6 @@ async def insert_factories(conn):
     factory_info['Cd_PessoaJuridica'] = companies_db[i]['Cd_PessoaJuridica']
     await insert_data(conn, 'Fabrica', factory_info)
 
-async def insert_vacines(conn):
-  pass
-
 async def insert_logradouro(conn, description):
   logradouro_info = {}
   logradouro_info['Ds_Logradouro'] = description
@@ -343,6 +340,37 @@ async def insert_shifts(conn):
     shift_info['Dt_Termino'] = shift_end
     await insert_data(conn, 'Plantao', shift_info)
 
+async def insert_ampoules(conn):
+  ships = await get_all_data(conn, 'Lote')
+  ships = {ship['Cd_Lote']: [ship['Nu_QuantidadeAmpolas'], ship['Dt_Fabricacao'], ship['Dt_Validade']] for ship in ships}
+  print(ships)
+
+  for ship in ships.keys():
+    for _ in range(int(ships[ship][0])):
+      ampoule_info = {}
+      ampoule_info['Cd_Lote'] = ship
+      ampoule_info['Dt_Abertura'] = fake.date_time_between(start_date=ships[ship][1], end_date=ships[ship][2])
+      await insert_data(conn, 'Ampola', ampoule_info)
+
+async def insert_vaccines(conn):
+  shifts = await get_all_data(conn, 'Plantao')
+  shifts = {shift['Cd_Plantao']: [shift['Cd_Funcionario'], shift['Cd_CentroVacinacao'], shift['Dt_Inicio'], shift['Dt_Termino']] for shift in shifts}
+  patients = await get_all_data(conn, 'Paciente')
+  patients = [patient['Cd_Paciente'] for patient in patients]
+  ampoules = await get_all_data(conn, 'Ampola')
+  ampoules = {ampoule['Cd_Ampola']: [ampoule['Cd_Lote'], ampoule['Dt_Abertura']] for ampoule in ampoules}
+  for _ in range(1000):
+    vaccine_info = {}
+    shift = choice(list(shifts.keys()))
+    vaccine_worker = shifts[shift][0]
+    vaccine_date = fake.date_time_between(start_date=shifts[shift][2], end_date=shifts[shift][3])
+    
+    vaccine_info['Cd_Paciente'] = choice(patients)
+    vaccine_info['Cd_Funcionario'] = vaccine_worker
+    vaccine_info['Cd_Ampola'] = choice(list(ampoules.keys()))
+    vaccine_info['Dt_Vacinacao'] = vaccine_date
+    await insert_data(conn, 'Vacinacao', vaccine_info)
+
 async def main():
   conn = await connect()
   # await insert_countries(conn)
@@ -361,6 +389,8 @@ async def main():
   # await insert_vaccine_types(conn)
   # await insert_ships(conn)
   # await insert_shifts(conn)
+  # await insert_ampoules(conn)
+  await insert_vaccines(conn)
   conn.close()
 
 
