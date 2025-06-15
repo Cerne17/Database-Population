@@ -147,5 +147,28 @@ async def get_by_id(conn: pyodbc.Connection, table_name: str, id_value: int) -> 
       return None # Return None if no row is found
     return await asyncio.to_thread(_db_operation)
   except pyodbc.Error as er:
-    print(f"Error retrieving data from {table_name}: {er}")
+    print(f"Warning! Error retrieving data from {table_name}: {er}")
     return None
+
+async def get_where(conn: pyodbc.Connection, table_name: str, where_clause: str) -> list:
+  query = f"SELECT * FROM {table_name} WHERE {where_clause};"
+  try:
+    def _db_operation():
+      with conn.cursor() as cursor:
+        cursor.execute(query)
+        columns = [column[0] for column in cursor.description]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+      return None
+    return await asyncio.to_thread(_db_operation)
+  except pyodbc.Error as er:
+    print(f"Warning! Error retrieving data from {table_name}: {er}")
+    return[]
+  
+async def main():
+  conn = await connect()
+  test_where = await get_where(conn, 'Paciente', 'Cd_Paciente = 200')
+  print(test_where)
+  conn.close()
+
+if __name__ == "__main__":
+  asyncio.run(main())
