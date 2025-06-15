@@ -322,6 +322,26 @@ async def insert_ships(conn):
     ship_info['Nu_QuantidadeAmpolas'] = size
     await insert_data(conn, 'Lote', ship_info)
 
+async def insert_shifts(conn):
+  shifts_durations_in_hours = [8, 12, 16, 24, 48]
+  workers = await get_all_data(conn, 'Funcionario')
+  workers = [worker['Cd_Funcionario'] for worker in workers]
+  vaccination_centers = await get_all_data(conn, 'CentroVacinacao')
+  vaccination_centers = [vaccination_center['Cd_CentroVacinacao'] for vaccination_center in vaccination_centers]
+
+  for i in range(2500):
+    worker = choice(workers)
+    vaccination_center = choice(vaccination_centers)
+    shift_duration = choice(shifts_durations_in_hours)
+    shift_start = fake.date_time_between(start_date='-5y', end_date='-3y')
+    shift_end = shift_start + timedelta(hours=shift_duration)
+
+    shift_info = {}
+    shift_info['Cd_Funcionario'] = worker
+    shift_info['Cd_CentroVacinacao'] = vaccination_center
+    shift_info['Dt_Inicio'] = shift_start
+    shift_info['Dt_Termino'] = shift_end
+    await insert_data(conn, 'Plantao', shift_info)
 
 async def main():
   conn = await connect()
@@ -339,7 +359,8 @@ async def main():
   # await insert_addresses(conn)
   # await insert_addresses_list(conn)
   # await insert_vaccine_types(conn)
-  await insert_ships(conn)
+  # await insert_ships(conn)
+  # await insert_shifts(conn)
   conn.close()
 
 
