@@ -1,4 +1,6 @@
+from datetime import datetime, timedelta
 import random
+import datetime
 from googletrans import Translator
 
 async def translate(text):
@@ -48,3 +50,19 @@ def generate_cnpj(format: bool = False) -> str:
         return '{}{}.{}{}{}.{}{}{}/{}{}{}{}-{}{}'.format(*cnpj)
     else:
         return ''.join(map(str, cnpj))
+
+def generate_random_datetime(
+    datetime_inicial: datetime = datetime.datetime(2004, 1, 25, 0, 0, 0),
+    datetime_final: datetime = datetime.datetime.now()
+):
+    if datetime_inicial >= datetime_final:
+        raise ValueError("datetime_inicial must be earlier than datetime_final")
+
+    delta = datetime_final - datetime_inicial
+    random_seconds = random.randint(0, int(delta.total_seconds()))
+    random_dt = datetime_inicial + timedelta(seconds=random_seconds)
+
+    # Formatação compatível com MS SQL Server: 'YYYY-MM-DD HH:MM:SS'
+    formatted_str = random_dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    return random_dt, formatted_str
