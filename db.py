@@ -3,9 +3,9 @@ import pyodbc
 
 async def connect() -> pyodbc.Connection:
   db_server = 'localhost,1433' 
-  db_database = 'master' # Substitua pelo nome do seu banco
+  db_database = 'master' # Database name
   db_username = 'sa' 
-  db_password = 'MyStr0ngP@ss1' # Substitua pela sua senha
+  db_password = 'MyStr0ngP@ss1'
   db_driver = '{ODBC Driver 17 for SQL Server}' 
 
   conn_str = (
@@ -13,16 +13,16 @@ async def connect() -> pyodbc.Connection:
     f'SERVER={db_server};'
     f'DATABASE={db_database};'
     f'UID={db_username};'
-    f'PWD={db_password};'  # Adicionado ponto e vírgula
-    f'TrustServerCertificate=yes;' # Use isto para certificados autoassinados/desenvolvimento, remova Trusted_Connection se usar UID/PWD
+    f'PWD={db_password};'
+    f'TrustServerCertificate=yes;' # Used in development, remove if in production
   )
 
   conn = None
   try: 
     conn = pyodbc.connect(conn_str)
-    print('Successfully connected to the database.')
+    print('Success! Successfully connected to the database.')
   except pyodbc.Error as er:
-    print(f'Error connecting to the database: {er}')
+    print(f'Warning! Error connecting to the database: {er}')
 
   return conn
 
@@ -36,7 +36,7 @@ async def insert_data(conn: pyodbc.Connection, table_name: str, data: dict) -> N
   :return: None
   """
   if not data:
-    print("No data was provided. Exiting...")
+    print("Warning! No data was provided. Exiting...")
     return
   
   columns = ', '.join(data.keys())
@@ -52,15 +52,15 @@ async def insert_data(conn: pyodbc.Connection, table_name: str, data: dict) -> N
       conn.commit()
 
     await asyncio.to_thread(_db_operation)
-    print(f'Successfully inserted data into {table_name}: {data}')
+    print(f'Success! Successfully inserted data into {table_name}: {data}')
 
   except pyodbc.Error as er:
-    print(f'Error inserting data into {table_name}: {er}')
+    print(f'Warning! Error inserting data into {table_name}: {er}')
     try:
       conn.rollback()
-      print(f'Operation canceled at {table_name}. Rollback performed.')
+      print(f'Warning! Operation canceled at {table_name}. Rollback performed.')
     except pyodbc.Error as rer:
-      print(f'Error performing rollback: {rer}')
+      print(f'Warning! Error performing rollback: {rer}')
 
 async def get_all_data(conn: pyodbc.Connection, table_name: str) -> list:
   """
@@ -74,11 +74,10 @@ async def get_all_data(conn: pyodbc.Connection, table_name: str) -> list:
            or an empty list if an error occurs or no data is found.
   """
   if not table_name:
-    print("No table name was provided. Exiting...")
+    print("Warning! No table name was provided. Exiting...")
     return []
   
-  # ATENÇÃO: table_name é inserido diretamente na string SQL.
-  # Garanta que ele venha de uma fonte confiável para evitar injeção de SQL.
+  # Warning! No safety checks, SQL-Injection is possible
   sql_select_query = f"SELECT * FROM {table_name}"
   
   try:
@@ -90,7 +89,7 @@ async def get_all_data(conn: pyodbc.Connection, table_name: str) -> list:
     
     return await asyncio.to_thread(_db_operation)
   except pyodbc.Error as er:
-    print(f"Error retrieving data from {table_name}: {er}")
+    print(f"Warning! Error retrieving data from {table_name}: {er}")
     return []
   
 async def get_brazilian_states(conn: pyodbc.Connection) -> list:
@@ -109,7 +108,7 @@ async def get_brazilian_states(conn: pyodbc.Connection) -> list:
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
     return await asyncio.to_thread(_db_operation)
   except pyodbc.Error as er:
-    print(f"Error retrieving data from Brazil: {er}")
+    print(f"Warning! Error retrieving data from Brazil: {er}")
     return []
 
 async def get_brazilian_cities(conn: pyodbc.Connection) -> list:
@@ -127,7 +126,7 @@ async def get_brazilian_cities(conn: pyodbc.Connection) -> list:
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
     return await asyncio.to_thread(_db_operation)
   except pyodbc.Error as er:
-    print(f"Error retrieving data from States: {er}")
+    print(f"Warning! Error retrieving data from States: {er}")
     return []
   
 async def get_by_id(conn: pyodbc.Connection, table_name: str, id_value: int) -> dict | None:
