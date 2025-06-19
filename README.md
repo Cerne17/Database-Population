@@ -56,14 +56,19 @@ This project is designed to populate a SQL Server database with comprehensive du
 ## Setup
 
 1.  **Configure Database Connection**:
-    Open `db.py` and update the following variables with your SQL Server details:
+    The application expects database connection details to be set as environment variables.
+    Create a `.env` file in the project root by copying the example below and filling in your SQL Server details.
+    The application uses the `python-dotenv` package (listed in `requirements.txt`) to load these variables.
+    **Important:** Add the `.env` file to your `.gitignore` file to prevent committing sensitive credentials.
 
-    ```python
-    db_server = 'localhost,1433'  # Your SQL Server instance
-    db_database = 'master'        # Your target database name
-    db_username = 'sa'            # Your SQL Server username
-    db_password = 'MyStr0ngP@ss1' # Your SQL Server password
-    db_driver = '{ODBC Driver 17 for SQL Server}' # Ensure this matches your installed ODBC driver
+    **Example `.env` file:**
+
+    ```
+    DB_SERVER='your_server_address,1433'
+    DB_DATABASE='your_database_name'
+    DB_USERNAME='your_username'
+    DB_PASSWORD='your_strong_password'
+    DB_DRIVER='{ODBC Driver 17 for SQL Server}' # Adjust if using a different driver
     ```
 
     **Note**: The `TrustServerCertificate=yes;` option is used for development. Review this for production environments.
@@ -184,14 +189,19 @@ Este projeto foi desenvolvido para popular um banco de dados SQL Server com dado
 ## Configuração
 
 1.  **Configurar Conexão com o Banco de Dados**:
-    Abra `db.py` e atualize as seguintes variáveis com os detalhes do seu SQL Server:
+    A aplicação espera que os detalhes da conexão com o banco de dados sejam definidos como variáveis de ambiente.
+    Crie um arquivo `.env` na raiz do projeto copiando o exemplo abaixo e preenchendo com os detalhes do seu SQL Server.
+    A aplicação usa o pacote `python-dotenv` (listado em `requirements.txt`) para carregar essas variáveis.
+    **Importante:** Adicione o arquivo `.env` ao seu arquivo `.gitignore` para evitar o commit de credenciais sensíveis.
 
-    ```python
-    db_server = 'localhost,1433'  # Sua instância do SQL Server
-    db_database = 'master'        # O nome do seu banco de dados alvo
-    db_username = 'sa'            # Seu nome de usuário do SQL Server
-    db_password = 'MyStr0ngP@ss1' # Sua senha do SQL Server
-    db_driver = '{ODBC Driver 17 for SQL Server}' # Certifique-se de que corresponde ao seu driver ODBC instalado
+    **Exemplo de arquivo `.env`:**
+
+    ```
+    DB_SERVER='seu_servidor,1433'
+    DB_DATABASE='nome_do_seu_banco'
+    DB_USERNAME='seu_usuario'
+    DB_PASSWORD='sua_senha_forte'
+    DB_DRIVER='{ODBC Driver 17 for SQL Server}' # Ajuste se estiver usando um driver diferente
     ```
 
     **Nota**: A opção `TrustServerCertificate=yes;` é usada para desenvolvimento. Revise isso para ambientes de produção.
