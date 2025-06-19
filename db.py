@@ -28,9 +28,9 @@ async def connect() -> pyodbc.Connection:
   conn = None
   try: 
     conn = pyodbc.connect(conn_str)
-    print('Success! Successfully connected to the database.')
+    logging.info('Success! Successfully connected to the database.')
   except pyodbc.Error as er:
-    print(f'Warning! Error connecting to the database: {er}')
+    logging.warning(f'Warning! Error connecting to the database: {er}')
 
   return conn
 
@@ -44,7 +44,7 @@ async def insert_data(conn: pyodbc.Connection, table_name: str, data: dict) -> N
   :return: None
   """
   if not data:
-    print("Warning! No data was provided. Exiting...")
+    logging.warning("Warning! No data was provided. Exiting...")
     return
   
   columns = ', '.join(data.keys())
@@ -60,15 +60,15 @@ async def insert_data(conn: pyodbc.Connection, table_name: str, data: dict) -> N
       conn.commit()
 
     await asyncio.to_thread(_db_operation)
-    print(f'Success! Successfully inserted data into {table_name}: {data}')
+    logging.info(f'Success! Successfully inserted data into {table_name}: {data}')
 
   except pyodbc.Error as er:
-    print(f'Warning! Error inserting data into {table_name}: {er}')
+    logging.warning(f'Warning! Error inserting data into {table_name}: {er}')
     try:
       conn.rollback()
-      print(f'Warning! Operation canceled at {table_name}. Rollback performed.')
+      logging.warning(f'Warning! Operation canceled at {table_name}. Rollback performed.')
     except pyodbc.Error as rer:
-      print(f'Warning! Error performing rollback: {rer}')
+      logging.warning(f'Warning! Error performing rollback: {rer}')
 
 async def get_all_data(conn: pyodbc.Connection, table_name: str) -> list:
   """
@@ -97,7 +97,7 @@ async def get_all_data(conn: pyodbc.Connection, table_name: str) -> list:
     
     return await asyncio.to_thread(_db_operation)
   except pyodbc.Error as er:
-    print(f"Warning! Error retrieving data from {table_name}: {er}")
+    logging.warning(f"Warning! Error retrieving data from {table_name}: {er}")
     return []
   
 async def get_brazilian_states(conn: pyodbc.Connection) -> list:
@@ -116,7 +116,7 @@ async def get_brazilian_states(conn: pyodbc.Connection) -> list:
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
     return await asyncio.to_thread(_db_operation)
   except pyodbc.Error as er:
-    print(f"Warning! Error retrieving data from Brazil: {er}")
+    logging.warning(f"Warning! Error retrieving data from Brazil: {er}")
     return []
 
 async def get_brazilian_cities(conn: pyodbc.Connection) -> list:
@@ -134,7 +134,7 @@ async def get_brazilian_cities(conn: pyodbc.Connection) -> list:
         return [dict(zip(columns, row)) for row in cursor.fetchall()]
     return await asyncio.to_thread(_db_operation)
   except pyodbc.Error as er:
-    print(f"Warning! Error retrieving data from States: {er}")
+    logging.warning(f"Warning! Error retrieving data from States: {er}")
     return []
   
 async def get_by_id(conn: pyodbc.Connection, table_name: str, id_value: int) -> dict | None:
@@ -154,7 +154,7 @@ async def get_by_id(conn: pyodbc.Connection, table_name: str, id_value: int) -> 
       return None # Return None if no row is found
     return await asyncio.to_thread(_db_operation)
   except pyodbc.Error as er:
-    print(f"Warning! Error retrieving data from {table_name}: {er}")
+    logging.warning(f"Warning! Error retrieving data from {table_name}: {er}")
     return None
 
 async def get_where(conn: pyodbc.Connection, table_name: str, where_clause: str) -> list:
@@ -168,13 +168,13 @@ async def get_where(conn: pyodbc.Connection, table_name: str, where_clause: str)
       return None
     return await asyncio.to_thread(_db_operation)
   except pyodbc.Error as er:
-    print(f"Warning! Error retrieving data from {table_name}: {er}")
+    logging.warning(f"Warning! Error retrieving data from {table_name}: {er}")
     return[]
   
 async def main():
   conn = await connect()
   test_where = await get_where(conn, 'Paciente', 'Cd_Paciente = 200')
-  print(test_where)
+  logging.debug(test_where)
   conn.close()
 
 if __name__ == "__main__":
