@@ -475,4 +475,3 @@ go
 
 grant connect sql to sa
 go
-
