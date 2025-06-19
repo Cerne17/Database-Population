@@ -1,12 +1,20 @@
 import asyncio
 import pyodbc
+import os
+import logging
+
+logging.basicConfig(
+  level=logging.INFO,
+  format='%(asctime)s - %(levelname)s - %(module)s - %(message)s',
+  datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 async def connect() -> pyodbc.Connection:
-  db_server = 'localhost,1433' 
-  db_database = 'master' # Database name
-  db_username = 'sa' 
-  db_password = 'MyStr0ngP@ss1'
-  db_driver = '{ODBC Driver 17 for SQL Server}' 
+  db_server   = os.getenv('DB_SERVER', 'localhost,1433')
+  db_database = os.getenv('DB_DATABASE', 'master')
+  db_username = os.getenv('DB_USERNAME', 'sa')
+  db_password = os.getenv('DB_PASSWORD', 'MyStr0ngP@ss1')
+  db_driver   = os.getenv('DB_DRIVER', '{ODBC Driver 17 for SQL Server}')
 
   conn_str = (
     f'DRIVER={db_driver};'
