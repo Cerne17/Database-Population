@@ -7,6 +7,13 @@ from functools import cache
 import json
 from random import choice
 from datetime import datetime, timedelta
+import logging
+
+logging.basicConfig(
+  level=logging.INFO,
+  format='%(asctime)s - %(levelname)s - %(module)s - %(message)s',
+  datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 fake = Faker('pt-BR')
 
@@ -182,7 +189,7 @@ async def insert_addresses(conn):
       logradouros = {logradouro['Ds_Logradouro'].strip(): logradouro['Cd_Logradouro'] for logradouro in logradouros}
 
     if address['Bairro'] not in neighborhoods.keys():
-      print('Warning! Neighborhood not found, register it manually.')
+      logging.warning('Warning! Neighborhood not found, register it manually.')
       total_neighborhood_not_found += 1
       neighborhood_not_found.append(address['Bairro'])
       continue
@@ -205,8 +212,8 @@ async def insert_addresses(conn):
     address_info['Nu_Local'] = address['Numero']
     address_info['Cd_Cep'] = address['CEP']
     await insert_data(conn, 'Endereco', address_info)
-  print(f'Warning! Total neighborhoods not found: {total_neighborhood_not_found}')
-  print(f'Warning! Neighborhoods not found: {neighborhood_not_found}')
+  logging.warning(f'Warning! Total neighborhoods not found: {total_neighborhood_not_found}')
+  logging.warning(f'Warning! Neighborhoods not found: {neighborhood_not_found}')
 
 async def insert_addresses_list(conn):
   address_types = await get_all_data(conn, 'TipoEndereco')
@@ -367,7 +374,7 @@ async def generate_patient_with_all_vaccines(conn):
         vaccine_center_id = ships[ship][1]
         break
     if ship_id is None:
-      print(f'Warning! Vaccine Type {type} has no ship available. Add manually. Skipping...')
+      logging.warning(f'Warning! Vaccine Type {type} has no ship available. Add manually. Skipping...')
       continue
 
     ampoule_id = None
@@ -378,7 +385,7 @@ async def generate_patient_with_all_vaccines(conn):
         ampoule_open_date = ampoules[ampoule][1]
         break
     if ampoule_id is None:
-        print(f'Warning! Ship {ship_id} has no ampoules available. Add manually. Skipping...')
+        logging.warning(f'Warning! Ship {ship_id} has no ampoules available. Add manually. Skipping...')
         continue
     
     shift_id = None
@@ -393,7 +400,7 @@ async def generate_patient_with_all_vaccines(conn):
         shift_end = shifts[shift][3]
         break
     if shift_id is None:
-      print(f'Warning! Vaccine center {vaccine_center_id} has no shifts available. Add manually. Skipping...')
+      logging.warning(f'Warning! Vaccine center {vaccine_center_id} has no shifts available. Add manually. Skipping...')
       continue
 
     vaccine_info ={}
@@ -434,7 +441,7 @@ async def generate_patient_with_all_factories(conn):
   factories = [factory['Cd_Fabrica'] for factory in all_factories_raw]
 
   for factory_id in factories:
-    print(f"Processing factory ID: {factory_id}")
+    logging.info(f"Processing factory ID: {factory_id}")
     ship_from_factory_id = None
     vaccine_center_for_ship = None
     
@@ -458,11 +465,11 @@ async def generate_patient_with_all_factories(conn):
             target_ampoule_id = amp_id
             target_ampoule_open_date = amp_data['open_date']
             found_ship_for_factory = True
-            print(f"  Found ship ID: {target_ship_id} from factory {factory_id} via ampoule {target_ampoule_id}")
+            logging.info(f"  Found ship ID: {target_ship_id} from factory {factory_id} via ampoule {target_ampoule_id}")
             break # Found a suitable ampoule/ship for this factory
 
     if not found_ship_for_factory:
-      print(f"Warning! No ship/ampoule found originating from factory {factory_id}. Skipping this factory.")
+      logging.warning(f"Warning! No ship/ampoule found originating from factory {factory_id}. Skipping this factory.")
       continue
 
     # Find a suitable shift for vaccination
@@ -482,11 +489,11 @@ async def generate_patient_with_all_factories(conn):
         target_shift_start = shift_data['start_time']
         target_shift_end = shift_data['end_time']
         found_shift = True
-        print(f"  Found shift ID: {target_shift_id} at center {vaccine_center_for_ship}")
+        logging.info(f"  Found shift ID: {target_shift_id} at center {vaccine_center_for_ship}")
         break
 
     if not found_shift:
-      print(f"Warning! No suitable shift found for ampoule {target_ampoule_id} (from factory {factory_id}) at vaccine center {vaccine_center_for_ship}. Skipping this factory.")
+      logging.warning(f"Warning! No suitable shift found for ampoule {target_ampoule_id} (from factory {factory_id}) at vaccine center {vaccine_center_for_ship}. Skipping this factory.")
       continue
 
     # All conditions met, prepare and insert vaccination record
@@ -502,13 +509,13 @@ async def generate_patient_with_all_factories(conn):
     # Ensure vaccination date is after ampoule opening and within shift
     possible_vaccination_start_date = max(target_shift_start, target_ampoule_open_date)
     if possible_vaccination_start_date > target_shift_end:
-        print(f"Warning! Ampoule {target_ampoule_id} opened after shift {target_shift_id} ended. Skipping this factory.")
+        logging.warning(f"Warning! Ampoule {target_ampoule_id} opened after shift {target_shift_id} ended. Skipping this factory.")
         continue
 
     vaccine_info['Dt_Vacinacao'] = fake.date_time_between(start_date=possible_vaccination_start_date, end_date=target_shift_end)
     
     await insert_data(conn, 'Vacinacao', vaccine_info)
-    print(f"  Successfully recorded vaccination for patient {patient_id} from factory {factory_id} using ampoule {target_ampoule_id}.")
+    logging.info(f"  Successfully recorded vaccination for patient {patient_id} from factory {factory_id} using ampoule {target_ampoule_id}.")
 
 async def main():
   conn = await connect()
