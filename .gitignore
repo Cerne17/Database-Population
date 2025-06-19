@@ -1,1 +1,19 @@
-.env*
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+venv/
+.venv/
+
+# IDE specific
+.idea/
+.vscode/
+
+# Output files
+application_output.txt
