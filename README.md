@@ -34,6 +34,7 @@ This project is designed to populate a SQL Server database with comprehensive du
 ## Prerequisites
 
 - Python 3.7+
+- We recommend using a Python virtual environment.
 - A running SQL Server instance.
 - The database schema (tables, relationships, etc.) must be pre-created in the SQL Server instance. This script only populates the data.
 - Python libraries:
@@ -43,6 +44,11 @@ This project is designed to populate a SQL Server database with comprehensive du
   - `googletrans`
   - `asyncio` (usually part of the standard library)
     You can typically install these using pip:
+  ```bash
+  # Create and activate a virtual environment (example using venv)
+  python -m venv venv
+  source venv/bin/activate  # On Windows: venv\Scripts\activate
+  ```
   ```bash
   pip install -r requirements.txt
   ```
@@ -150,15 +156,27 @@ Este projeto foi desenvolvido para popular um banco de dados SQL Server com dado
 ## Pré-requisitos
 
 - Python 3.7+
+- Recomendamos o uso de um ambiente virtual de Python
 - Uma instância do SQL Server em execução.
 - O esquema do banco de dados (tabelas, relacionamentos, etc.) deve ser pré-criado na instância do SQL Server. Este script apenas popula os dados.
 - Bibliotecas Python:
+
   - `pyodbc`
   - `requests`
   - `Faker`
   - `googletrans`
   - `asyncio` (geralmente parte da biblioteca padrão)
-    Você pode instalá-las usando pip:
+
+  Ambiente virtual de python:
+
+  ```bash
+  # Criando e ativando o ambiente virtual
+  python -m venv venv
+  source venv/bin/activate # No Windows: venv\Scripts\activate
+  ```
+
+  Você pode instalá-las usando pip:
+
   ```bash
   pip install -r requirements.txt
   ```
