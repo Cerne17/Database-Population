@@ -1,0 +1,11 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+# E203: whitespace before ':' - black's style
+# W503: line break before binary operator - black breaks after
+exclude =
+    .git,
+    __pycache__,
+    venv, # ou .venv, dependendo do nome do seu ambiente virtual
+    build,
+    dist

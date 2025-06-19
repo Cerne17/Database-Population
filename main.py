@@ -1,15 +1,22 @@
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 from functools import cache
 from random import choice
 
 import requests
 from faker import Faker
 
-from db import *
-from functionalities import *
+from db import (
+    connect,
+    get_all_data,
+    get_brazilian_cities,
+    get_brazilian_states,
+    get_by_id,
+    insert_data,
+)
+from functionalities import generate_cnpj, generate_cpf, translate
 
 logging.basicConfig(
     level=logging.INFO,
@@ -61,16 +68,14 @@ async def insert_states(conn):
     url = "https://countriesnow.space/api/v0.1/countries/states"
     payload = {}
     headers = {}
-    response = requests.request("GET", url, headers=headers, data=payload).json()[
-        "data"
-    ]
+    api_response = requests.request("GET", url, headers=headers, data=payload).json()
+    response = api_response["data"]
     states_data = {}
     for state in response:
         states_data[state["name"]] = state["states"]
 
     for country in db_countries:
         portuguese_name = country["Nm_Pais"].strip()
-        original_name = country_data[portuguese_name].strip()
         common_name = common_data[portuguese_name].strip()
 
         if common_name in states_data:
@@ -87,7 +92,10 @@ async def insert_states(conn):
 async def insert_cities(conn):
     for state in await get_brazilian_states(conn):
         state_code = state["Sg_Estado"].strip()
-        url = f"https://brasilapi.com.br/api/ibge/municipios/v1/{state_code}?providers=dados-abertos-br,gov,wikipedia"
+        url = (
+            f"https://brasilapi.com.br/api/ibge/municipios/v1/{state_code}"
+            "?providers=dados-abertos-br,gov,wikipedia"
+        )
         response = requests.get(url).json()
         for city in response:
             city_info = {}
@@ -514,7 +522,8 @@ async def generate_patient_with_all_vaccines(conn):
                 break
         if ship_id is None:
             logging.warning(
-                f"Warning! Vaccine Type {type} has no ship available. Add manually. Skipping..."
+                f"""Warning! Vaccine Type {type} has no ship available.
+                Add manually. Skipping..."""
             )
             continue
 
@@ -527,7 +536,8 @@ async def generate_patient_with_all_vaccines(conn):
                 break
         if ampoule_id is None:
             logging.warning(
-                f"Warning! Ship {ship_id} has no ampoules available. Add manually. Skipping..."
+                f"""Warning! Ship {ship_id} has no ampoules available.
+                Add manually. Skipping..."""
             )
             continue
 
@@ -547,7 +557,8 @@ async def generate_patient_with_all_vaccines(conn):
                 break
         if shift_id is None:
             logging.warning(
-                f"Warning! Vaccine center {vaccine_center_id} has no shifts available. Add manually. Skipping..."
+                f"""Warning! Vaccine center {vaccine_center_id} has no shifts available.
+                Add manually. Skipping..."""
             )
             continue
 
@@ -595,12 +606,13 @@ async def generate_patient_with_all_factories(conn):
 
     for factory_id in factories:
         logging.info(f"Processing factory ID: {factory_id}")
-        ship_from_factory_id = None
         vaccine_center_for_ship = None
 
         # Find a ship (Lote) that came from the current factory
-        # This requires iterating through ampoules to find their ships, then checking ship's factory
-        # This is inefficient if done repeatedly. A better approach would be to get all ships
+        # This requires iterating through ampoules to find their ships,
+        # then checking ship's factory
+        # This is inefficient if done repeatedly. A better
+        # approach would be to get all ships
         # and map them to factories if possible, or accept the current lookup strategy.
         # For this example, we'll find the first suitable ship.
 
@@ -619,13 +631,15 @@ async def generate_patient_with_all_factories(conn):
                 target_ampoule_open_date = amp_data["open_date"]
                 found_ship_for_factory = True
                 logging.info(
-                    f"  Found ship ID: {target_ship_id} from factory {factory_id} via ampoule {target_ampoule_id}"
+                    f"""Found ship ID: {target_ship_id} from factory {factory_id}
+                    via ampoule {target_ampoule_id}"""
                 )
                 break  # Found a suitable ampoule/ship for this factory
 
         if not found_ship_for_factory:
             logging.warning(
-                f"Warning! No ship/ampoule found originating from factory {factory_id}. Skipping this factory."
+                f"""Warning! No ship/ampoule found originating from
+                factory {factory_id}. Skipping this factory."""
             )
             continue
 
@@ -649,13 +663,16 @@ async def generate_patient_with_all_factories(conn):
                 target_shift_end = shift_data["end_time"]
                 found_shift = True
                 logging.info(
-                    f"  Found shift ID: {target_shift_id} at center {vaccine_center_for_ship}"
+                    f"""Found shift ID: {target_shift_id}
+                        at center {vaccine_center_for_ship}"""
                 )
                 break
 
         if not found_shift:
             logging.warning(
-                f"Warning! No suitable shift found for ampoule {target_ampoule_id} (from factory {factory_id}) at vaccine center {vaccine_center_for_ship}. Skipping this factory."
+                f"""Warning! No suitable shift found for ampoule {target_ampoule_id}
+                    (from factory {factory_id}) at center {vaccine_center_for_ship}.
+                    Skipping this factory."""
             )
             continue
 
@@ -665,9 +682,11 @@ async def generate_patient_with_all_factories(conn):
         vaccine_info["Cd_Funcionario"] = target_worker_id
         vaccine_info["Cd_Ampola"] = target_ampoule_id
         # Ensure vaccination date is within the shift and after ampoule opening
-        # For simplicity, using a date within the shift. A more precise logic might be needed
+        # For simplicity, using a date within the shift.
+        # A more precise logic might be needed
         # if fake.date_time_between needs to consider target_ampoule_open_date as well.
-        # Current fake.date_time_between might pick a date before ampoule was opened if shift started earlier.
+        # Current fake.date_time_between might pick a date before ampoule
+        # was opened if shift started earlier.
 
         # Ensure vaccination date is after ampoule opening and within shift
         possible_vaccination_start_date = max(
@@ -675,7 +694,8 @@ async def generate_patient_with_all_factories(conn):
         )
         if possible_vaccination_start_date > target_shift_end:
             logging.warning(
-                f"Warning! Ampoule {target_ampoule_id} opened after shift {target_shift_id} ended. Skipping this factory."
+                f"""Warning! Ampoule {target_ampoule_id} opened after shift
+                {target_shift_id} ended. Skipping this factory."""
             )
             continue
 
@@ -685,7 +705,9 @@ async def generate_patient_with_all_factories(conn):
 
         await insert_data(conn, "Vacinacao", vaccine_info)
         logging.info(
-            f"  Successfully recorded vaccination for patient {patient_id} from factory {factory_id} using ampoule {target_ampoule_id}."
+            f"""Successfully recorded vaccination for patient {patient_id}
+                from factory {factory_id} using ampoule {target_ampoule_id}.
+            """
         )
 
 

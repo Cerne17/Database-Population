@@ -13,7 +13,7 @@ logging.basicConfig(
 
 
 async def connect() -> pyodbc.Connection:
-    
+
     load_dotenv()
 
     db_server = os.getenv("DB_SERVER", "localhost,1433")
@@ -28,7 +28,8 @@ async def connect() -> pyodbc.Connection:
         f"DATABASE={db_database};"
         f"UID={db_username};"
         f"PWD={db_password};"
-        f"TrustServerCertificate=yes;"  # Used in development, remove if in production
+        # Used in development, remove if in production
+        f"TrustServerCertificate=yes;"
     )
 
     conn = None
@@ -46,7 +47,8 @@ async def insert_data(conn: pyodbc.Connection, table_name: str, data: dict) -> N
     Inserts data in a specified table.
 
     :param conn: The database connection.
-    :param table_name: The name of the table to insert data into, directly injected in the SQL Query.
+    :param table_name: The name of the table to insert data into,
+    directly injected in the SQL Query.
     :param data: A dictionary containing the data to be inserted.
     :return: None
     """
@@ -56,7 +58,10 @@ async def insert_data(conn: pyodbc.Connection, table_name: str, data: dict) -> N
 
     columns = ", ".join(data.keys())
     placeholders = ", ".join(["?"] * len(data))
-    sql_insert_query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+    sql_insert_query = f"""
+        INSERT INTO {table_name} ({columns})
+        VALUES ({placeholders})
+    """
 
     values = tuple(data.values())
 
@@ -68,7 +73,7 @@ async def insert_data(conn: pyodbc.Connection, table_name: str, data: dict) -> N
             conn.commit()
 
         await asyncio.to_thread(_db_operation)
-        logging.info(f"Success! Successfully inserted data into {table_name}: {data}")
+        logging.info(f"""Success! Inserted data into {table_name}: {data}""")
 
     except pyodbc.Error as er:
         logging.warning(f"Warning! Error inserting data into {table_name}: {er}")
